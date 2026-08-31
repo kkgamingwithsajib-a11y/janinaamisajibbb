@@ -21,42 +21,56 @@ import {
 } from 'recharts';
 
 interface ProfitCalculatorProps {
-  onOpenDepositWithAmount: (amount: number) => void;
-  btcPrice: number;
+  onOpenDepositWithAmount?: (amount: number) => void;
+  onInvestNow?: (amount: number) => void;
+  btcPrice?: number;
+  dailyYieldPercent?: number;
 }
 
 export const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({ 
   onOpenDepositWithAmount,
-  btcPrice = 92450.80 
+  onInvestNow,
+  btcPrice = 92450.80,
+  dailyYieldPercent = 3.0
 }) => {
   const [depositAmount, setDepositAmount] = useState<number>(1000);
 
   const presets = [50, 250, 1000, 2500, 5000, 10000, 25000, 50000];
 
+  const handleInvest = (amt: number) => {
+    if (onInvestNow) {
+      onInvestNow(amt);
+    } else if (onOpenDepositWithAmount) {
+      onOpenDepositWithAmount(amt);
+    }
+  };
+
   const calculations = useMemo(() => {
-    const dailyProfit = depositAmount * 0.03;
-    const weeklyProfit = depositAmount * 0.21;
-    const monthlyProfit = depositAmount * 0.90;
-    const totalReturn = depositAmount * 1.80;
-    const netProfit = depositAmount * 0.80;
-    const btcAmount = depositAmount / btcPrice;
-    const dailyBtc = dailyProfit / btcPrice;
+    const dailyRate = dailyYieldPercent / 100;
+    const dailyProfit = depositAmount * dailyRate;
+    const weeklyProfit = depositAmount * dailyRate * 7;
+    const monthlyProfit = depositAmount * dailyRate * 30;
+    const totalReturn = depositAmount * (1 + dailyRate * 60 - 1) + depositAmount; // 60 days gross
+    const grossReturn = depositAmount * (dailyRate * 60);
+    const netProfit = Math.max(0, grossReturn - depositAmount);
+    const btcAmount = btcPrice > 0 ? depositAmount / btcPrice : 0;
+    const dailyBtc = btcPrice > 0 ? dailyProfit / btcPrice : 0;
 
     return {
       dailyProfit,
       weeklyProfit,
       monthlyProfit,
-      totalReturn,
+      totalReturn: grossReturn,
       netProfit,
       btcAmount,
       dailyBtc,
     };
-  }, [depositAmount, btcPrice]);
+  }, [depositAmount, btcPrice, dailyYieldPercent]);
 
   // Generate chart data for 60 days
   const chartData = useMemo(() => {
     const data = [];
-    const dailyReturn = depositAmount * 0.03;
+    const dailyReturn = depositAmount * (dailyYieldPercent / 100);
     for (let day = 0; day <= 60; day += 5) {
       const cumulative = Number((dailyReturn * day).toFixed(2));
       data.push({
@@ -67,7 +81,7 @@ export const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({
       });
     }
     return data;
-  }, [depositAmount]);
+  }, [depositAmount, dailyYieldPercent]);
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = Number(e.target.value);
@@ -204,7 +218,7 @@ export const ProfitCalculator: React.FC<ProfitCalculatorProps> = ({
             </div>
 
             <button
-              onClick={() => onOpenDepositWithAmount(depositAmount)}
+              onClick={() => handleInvest(depositAmount)}
               className="w-full py-4 text-sm font-bold text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 hover:from-emerald-300 hover:to-cyan-300 rounded-xl transition-all shadow-xl shadow-emerald-500/25 flex items-center justify-center space-x-2 font-mono uppercase tracking-wider"
             >
               <span>Invest ${depositAmount.toLocaleString()} Now</span>

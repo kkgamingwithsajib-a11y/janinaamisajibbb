@@ -10,7 +10,8 @@ import {
   Award,
   Globe,
   Phone,
-  KeyRound
+  KeyRound,
+  Send
 } from 'lucide-react';
 import { PlatformConfig } from '../types';
 
@@ -67,6 +68,15 @@ export const Footer: React.FC<FooterProps> = ({
                 <Mail className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                 <span>{platformConfig?.supportEmail || 'support@winvest.com'}</span>
               </div>
+              <a
+                href="https://t.me/winvestsupportcentre"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-[#29b6f6] hover:underline"
+              >
+                <Send className="w-3.5 h-3.5 shrink-0" />
+                <span>Telegram Support: @winvestsupportcentre</span>
+              </a>
               {platformConfig?.contactPhone && (
                 <div className="flex items-center gap-2">
                   <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />

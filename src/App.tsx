@@ -235,6 +235,14 @@ export default function App() {
       <HeroSection
         marketPairs={marketPairs}
         onStartInvest={() => handleStartInvest(1000)}
+        onOpenDeposit={() => handleStartInvest(1000)}
+        onOpenCalculator={() => {
+          const el = document.getElementById('calculator');
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }}
+        onOpenCertificate={() => setIsCertificateOpen(true)}
         onOpenWhitepaper={() => setIsCertificateOpen(true)}
         dailyRatePercent={platformConfig?.dailyYieldRatePercent || 3.0}
       />

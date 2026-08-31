@@ -79,6 +79,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
     else if (onOpenDeposit) onOpenDeposit();
   };
 
+  const handleCalculateAction = () => {
+    if (onOpenCalculator) {
+      onOpenCalculator();
+    } else {
+      const el = document.getElementById('calculator');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
+
   const handleCertAction = () => {
     if (onOpenCertificate) onOpenCertificate();
     else if (onOpenWhitepaper) onOpenWhitepaper();
@@ -146,8 +157,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               </button>
 
               <button
-                onClick={onOpenCalculator}
-                className="px-6 py-3.5 text-sm font-semibold text-slate-200 hover:text-white bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 rounded-xl transition-all flex items-center space-x-2"
+                onClick={handleCalculateAction}
+                className="px-6 py-3.5 text-sm font-semibold text-slate-200 hover:text-white bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 rounded-xl transition-all flex items-center space-x-2 cursor-pointer"
               >
                 <Zap className="w-4 h-4 text-emerald-400" />
                 <span>Calculate Profit</span>
@@ -256,8 +267,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <span className="text-[11px] text-slate-400">Auto-credited every 24 hours to your balance</span>
                 </div>
                 <button
-                  onClick={onOpenDeposit}
-                  className="px-3 py-1.5 text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg shrink-0 transition-colors font-mono"
+                  onClick={handleDepositAction}
+                  className="px-3 py-1.5 text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg shrink-0 transition-colors font-mono cursor-pointer"
                 >
                   Join Pool
                 </button>

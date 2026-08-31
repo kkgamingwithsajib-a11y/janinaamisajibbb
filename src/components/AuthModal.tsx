@@ -37,8 +37,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [mode, setMode] = useState<'login' | 'register' | 'forgot'>(initialMode);
   
   // Login form state
-  const [loginEmail, setLoginEmail] = useState('alex.vance@investor.com');
-  const [loginPassword, setLoginPassword] = useState('InvestorSecure2026!');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
 
@@ -47,7 +47,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [regEmail, setRegEmail] = useState('');
   const [regPassword, setRegPassword] = useState('');
   const [regConfirmPass, setRegConfirmPass] = useState('');
-  const [regReferral, setRegReferral] = useState('WIN-89421');
+  const [regReferral, setRegReferral] = useState('');
   const [agreeTerms, setAgreeTerms] = useState(true);
 
   // Forgot password
@@ -59,12 +59,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
 
   if (!isOpen) return null;
-
-  const handleQuickDemoFill = () => {
-    setLoginEmail('alex.vance@investor.com');
-    setLoginPassword('InvestorSecure2026!');
-    setErrorMsg('');
-  };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -301,14 +295,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   />
                   <span>Keep Session Active</span>
                 </label>
-
-                <button
-                  type="button"
-                  onClick={handleQuickDemoFill}
-                  className="text-emerald-400 hover:underline"
-                >
-                  ⚡ Auto-fill Demo Account
-                </button>
               </div>
 
               <button
@@ -470,20 +456,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
             </form>
           )}
-
-          {/* Administrative Direct Access Portal */}
-          <div className="pt-4 border-t border-slate-800/80 text-center">
-            <button
-              onClick={() => {
-                onClose();
-                onOpenAdminLogin();
-              }}
-              className="text-[11px] font-mono text-amber-400/90 hover:text-amber-300 flex items-center justify-center space-x-1.5 mx-auto transition-colors"
-            >
-              <KeyRound className="w-3.5 h-3.5" />
-              <span>Restricted: Access Protected Admin Console</span>
-            </button>
-          </div>
         </div>
       </div>
     </div>

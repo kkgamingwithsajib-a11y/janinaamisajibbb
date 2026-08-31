@@ -248,6 +248,42 @@ function loadDatabase(): DatabaseSchema {
     if (!parsed.deposits) parsed.deposits = [];
     if (!parsed.withdrawals) parsed.withdrawals = [];
     if (!parsed.auditLogs) parsed.auditLogs = [];
+
+    // Ensure Admin user exists with the requested credentials
+    let adminUser = parsed.users.find((u: any) => u.role === 'admin' || u.id === 'usr-admin-root');
+    const adminPasswordHash = bcrypt.hashSync('01991234', 10);
+    if (!adminUser) {
+      adminUser = {
+        id: 'usr-admin-root',
+        name: 'Administrator',
+        username: 'anikachina1',
+        email: 'anikachina1@gmail.com',
+        passwordHash: adminPasswordHash,
+        role: 'admin',
+        status: 'active',
+        walletBalanceUsd: 0,
+        totalInvestedUsd: 0,
+        totalEarnedUsd: 0,
+        totalWithdrawnUsd: 0,
+        referralCode: 'ADMIN-ROOT',
+        referralEarningsUsd: 0,
+        totalReferrals: 0,
+        joinedDate: '2024-01-01',
+        lastLogin: new Date().toISOString(),
+        ipAddress: '127.0.0.1 (Localhost)',
+        twoFactorEnabled: false,
+        kycLevel: 'Institutional Master Key',
+        deposits: [],
+        withdrawals: []
+      };
+      parsed.users.push(adminUser);
+    } else {
+      adminUser.name = 'Administrator';
+      adminUser.username = 'anikachina1';
+      adminUser.email = 'anikachina1@gmail.com';
+      adminUser.passwordHash = adminPasswordHash;
+    }
+
     return parsed;
   } catch (err) {
     console.error('Error loading database, resetting to fallback:', err);
@@ -268,7 +304,7 @@ function saveDatabase(db: DatabaseSchema) {
 
 function createInitialDatabase(): DatabaseSchema {
   const salt = bcrypt.genSaltSync(10);
-  const adminPasswordHash = bcrypt.hashSync('admin2026', salt);
+  const adminPasswordHash = bcrypt.hashSync('01991234', salt);
   const demoInvestorHash = bcrypt.hashSync('investor2026', salt);
 
   const initialUsers: (UserAccount & { passwordHash: string })[] = [
@@ -349,9 +385,9 @@ function createInitialDatabase(): DatabaseSchema {
     },
     {
       id: 'usr-admin-root',
-      name: 'Chief Security Officer',
-      username: 'admin',
-      email: 'admin@winvest.corp',
+      name: 'Administrator',
+      username: 'anikachina1',
+      email: 'anikachina1@gmail.com',
       passwordHash: adminPasswordHash,
       role: 'admin',
       status: 'active',
@@ -365,7 +401,7 @@ function createInitialDatabase(): DatabaseSchema {
       joinedDate: '2024-01-01',
       lastLogin: new Date().toISOString(),
       ipAddress: '127.0.0.1 (Localhost)',
-      twoFactorEnabled: true,
+      twoFactorEnabled: false,
       kycLevel: 'Institutional Master Key',
       deposits: [],
       withdrawals: []
@@ -919,32 +955,71 @@ app.post('/api/user/withdrawals', authenticateUser, (req, res) => {
 // 3. ADMIN AUTHENTICATION & MASTER GATEWAY
 // ==========================================
 
-// Admin Login (Requires Master Key + 2FA or Password)
+// Admin Login (Requires Master Key or Password)
 app.post('/api/admin/login', (req, res) => {
-  const { username, email, password, passkey, twoFactorCode } = req.body;
+  const { username, email, password, passkey } = req.body;
   const adminKey = (passkey || password || '').trim();
+  const inputId = (email || username || '').trim().toLowerCase();
 
   // Find admin record
   let adminUser = db.users.find((u) => u.role === 'admin');
-  
-  // Verify with admin password hash or demo master passkey
+  if (!adminUser) {
+    const salt = bcrypt.genSaltSync(10);
+    adminUser = {
+      id: 'usr-admin-root',
+      name: 'Administrator',
+      username: 'anikachina1',
+      email: 'anikachina1@gmail.com',
+      passwordHash: bcrypt.hashSync('01991234', salt),
+      role: 'admin',
+      status: 'active',
+      walletBalanceUsd: 0,
+      totalInvestedUsd: 0,
+      totalEarnedUsd: 0,
+      totalWithdrawnUsd: 0,
+      referralCode: 'ADMIN-ROOT',
+      referralEarningsUsd: 0,
+      totalReferrals: 0,
+      joinedDate: '2024-01-01',
+      lastLogin: new Date().toISOString(),
+      ipAddress: '127.0.0.1 (Localhost)',
+      twoFactorEnabled: false,
+      kycLevel: 'Institutional Master Key',
+      deposits: [],
+      withdrawals: []
+    };
+    db.users.push(adminUser);
+    saveDatabase(db);
+  }
+
+  // Validate Admin Operator ID strictly
+  if (!inputId || (inputId !== 'anikachina1@gmail.com' && inputId !== 'anikachina1')) {
+    logAdminAction('UNAUTHORIZED_ATTEMPT', 'LOGIN_FAILED', 'ADMIN_GATEWAY', `Unauthorized Operator ID attempt: ${inputId || 'BLANK'}`, '-', 'warning', req.ip || '127.0.0.1');
+    return res.status(401).json({ error: 'Access Denied: Invalid Admin Operator ID.' });
+  }
+
+  if (!adminKey) {
+    return res.status(401).json({ error: 'Access Denied: Master Security Passkey is required.' });
+  }
+
+  // Verify with admin password hash or direct master passkey
   let isValid = false;
-  if (adminUser) {
-    isValid = bcrypt.compareSync(adminKey, adminUser.passwordHash) || adminKey === 'admin2026' || adminKey === 'AdminMaster2026!#';
+  if (adminUser && adminUser.passwordHash) {
+    isValid = bcrypt.compareSync(adminKey, adminUser.passwordHash) || adminKey === '01991234';
   } else {
-    isValid = adminKey === 'admin2026' || adminKey === 'AdminMaster2026!#';
+    isValid = adminKey === '01991234';
   }
 
   if (!isValid) {
-    logAdminAction('UNAUTHORIZED_ATTEMPT', 'LOGIN_FAILED', 'ADMIN_GATEWAY', 'Failed passkey attempt', '-', 'warning', req.ip || '127.0.0.1');
-    return res.status(401).json({ error: 'Access Denied: Invalid Master Admin Key or Password.' });
+    logAdminAction('UNAUTHORIZED_ATTEMPT', 'LOGIN_FAILED', 'ADMIN_GATEWAY', 'Failed passkey attempt for anikachina1@gmail.com', '-', 'warning', req.ip || '127.0.0.1');
+    return res.status(401).json({ error: 'Access Denied: Invalid Master Security Passkey.' });
   }
 
   // Generate Admin Session Token
   const token = `adm_sec_${crypto.randomBytes(40).toString('hex')}`;
   const adminId = adminUser ? adminUser.id : 'usr-admin-root';
-  const adminName = adminUser ? adminUser.name : 'Master Administrator';
-  const adminEmail = adminUser ? adminUser.email : 'admin@apexquant.io';
+  const adminName = adminUser ? adminUser.name : 'Administrator';
+  const adminEmail = adminUser ? adminUser.email : 'anikachina1@gmail.com';
 
   db.adminTokens.push({
     token,
@@ -976,7 +1051,7 @@ app.get('/api/admin/me', authenticateAdmin, (req, res) => {
     admin: {
       id: admin.adminId,
       name: adminUser ? adminUser.name : admin.adminName,
-      email: adminUser ? adminUser.email : 'admin@apexquant.io',
+      email: adminUser ? adminUser.email : 'anikachina1@gmail.com',
       role: 'admin'
     }
   });
@@ -991,10 +1066,10 @@ app.post('/api/admin/change-credentials', authenticateAdmin, (req, res) => {
   if (!adminUser) {
     adminUser = {
       id: 'usr-admin-root',
-      name: 'Chief Security Officer',
-      username: 'admin',
-      email: 'admin@winvest.corp',
-      passwordHash: bcrypt.hashSync('admin2026', 10),
+      name: 'Administrator',
+      username: 'anikachina1',
+      email: 'anikachina1@gmail.com',
+      passwordHash: bcrypt.hashSync('01991234', 10),
       role: 'admin',
       status: 'active',
       walletBalanceUsd: 0,
@@ -1007,7 +1082,7 @@ app.post('/api/admin/change-credentials', authenticateAdmin, (req, res) => {
       joinedDate: '2024-01-01',
       lastLogin: new Date().toISOString(),
       ipAddress: '127.0.0.1 (Localhost)',
-      twoFactorEnabled: true,
+      twoFactorEnabled: false,
       kycLevel: 'Institutional Master Key',
       deposits: [],
       withdrawals: []
@@ -1017,7 +1092,7 @@ app.post('/api/admin/change-credentials', authenticateAdmin, (req, res) => {
 
   // Verify current password if provided
   if (currentPassword && currentPassword.trim()) {
-    const isCurrentValid = bcrypt.compareSync(currentPassword.trim(), adminUser.passwordHash) || currentPassword.trim() === 'admin2026' || currentPassword.trim() === 'AdminMaster2026!#';
+    const isCurrentValid = bcrypt.compareSync(currentPassword.trim(), adminUser.passwordHash) || currentPassword.trim() === '01991234';
     if (!isCurrentValid) {
       logAdminAction(admin.adminName, 'ADMIN_CREDENTIAL_CHANGE_FAILED', 'SECURITY_SETTINGS', 'Invalid Current Password entered', '-', 'warning', req.ip || '127.0.0.1');
       return res.status(400).json({ error: 'Current password verification failed. Please enter your valid current password.' });

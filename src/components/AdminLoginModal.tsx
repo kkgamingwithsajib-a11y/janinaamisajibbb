@@ -4,14 +4,9 @@ import {
   ShieldAlert, 
   KeyRound, 
   Lock, 
-  Terminal, 
-  CheckCircle2, 
   AlertTriangle, 
   ArrowRight,
   Server,
-  Fingerprint,
-  Building2,
-  Cpu,
   RefreshCw
 } from 'lucide-react';
 import { api } from '../services/api';
@@ -29,9 +24,8 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
   onAdminLoginSuccess,
   onOpenUserLogin,
 }) => {
-  const [adminEmail, setAdminEmail] = useState('admin@apexquant.io');
-  const [masterPassword, setMasterPassword] = useState('AdminMaster2026!#');
-  const [twoFactorToken, setTwoFactorToken] = useState('948201');
+  const [adminEmail, setAdminEmail] = useState('');
+  const [masterPassword, setMasterPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -53,7 +47,6 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
         email: adminEmail.trim(),
         password: masterPassword.trim(),
         passkey: masterPassword.trim(),
-        twoFactorCode: twoFactorToken.trim(),
       });
 
       onAdminLoginSuccess(token, admin);
@@ -63,13 +56,6 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleAutoFillAdminDemo = () => {
-    setAdminEmail('admin@apexquant.io');
-    setMasterPassword('AdminMaster2026!#');
-    setTwoFactorToken('948201');
-    setErrorMsg('');
   };
 
   return (
@@ -155,21 +141,6 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
               </div>
             </div>
 
-            <div>
-              <label className="text-slate-300 block mb-1.5 font-bold">Hardware 2FA / TOTP Token</label>
-              <div className="relative">
-                <Fingerprint className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  maxLength={6}
-                  value={twoFactorToken}
-                  onChange={(e) => setTwoFactorToken(e.target.value)}
-                  placeholder="6-digit authenticator code"
-                  className="w-full bg-[#030611] border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-white font-mono tracking-widest focus:border-amber-500 focus:outline-none"
-                />
-              </div>
-            </div>
-
             <div className="pt-2">
               <button
                 type="submit"
@@ -179,7 +150,7 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
                 {isLoading ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Verifying Hardware Multi-Sig...</span>
+                    <span>Authenticating Root Access...</span>
                   </>
                 ) : (
                   <>
@@ -191,16 +162,8 @@ export const AdminLoginModal: React.FC<AdminLoginModalProps> = ({
             </div>
           </form>
 
-          {/* Quick Demo Fill & User switch */}
-          <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between text-[11px] font-mono">
-            <button
-              type="button"
-              onClick={handleAutoFillAdminDemo}
-              className="text-amber-400 hover:underline flex items-center gap-1"
-            >
-              <span>⚡ Fill Master Credentials</span>
-            </button>
-
+          {/* User switch */}
+          <div className="pt-4 border-t border-slate-800/80 flex items-center justify-end text-[11px] font-mono">
             <button
               type="button"
               onClick={() => {
