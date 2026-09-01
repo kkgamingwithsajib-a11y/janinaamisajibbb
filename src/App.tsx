@@ -16,6 +16,7 @@ import { AuthModal } from './components/AuthModal';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { AdminPanel } from './components/AdminPanel';
 import { Footer } from './components/Footer';
+import { AdLeaderboard728x90, AdBanner320x50 } from './components/AdBanner';
 
 import { 
   INITIAL_MARKET_PAIRS, 
@@ -247,11 +248,25 @@ export default function App() {
         dailyRatePercent={platformConfig?.dailyYieldRatePercent || 3.0}
       />
 
+      {/* Ad Placement 1: Below Stats & Above Investment Plans (Screenshot 1) */}
+      <section className="py-4 px-4 bg-[#040816] border-y border-slate-800/40">
+        <div className="max-w-6xl mx-auto flex justify-center">
+          <AdLeaderboard728x90 />
+        </div>
+      </section>
+
       {/* Investment Plans */}
       <PlanSection 
         onSelectPlan={(amount) => handleStartInvest(amount)} 
         plans={plans}
       />
+
+      {/* Ad Placement 2: Below Comparison Table & Above Profit Calculator (Screenshot 2) */}
+      <section className="py-4 px-4 bg-[#05091a] border-y border-slate-800/40">
+        <div className="max-w-6xl mx-auto flex justify-center">
+          <AdLeaderboard728x90 />
+        </div>
+      </section>
 
       {/* Interactive Profit Calculator */}
       <ProfitCalculator 
@@ -262,11 +277,25 @@ export default function App() {
       {/* AI Bot Live Engine Showcase */}
       <AiEngineShowcase signals={aiSignals} />
 
+      {/* Ad Placement 3: Above Corporate Heritage & About Section (Screenshot 3) */}
+      <section className="py-4 px-4 bg-[#040714] border-y border-slate-800/40">
+        <div className="max-w-md mx-auto flex justify-center">
+          <AdBanner320x50 />
+        </div>
+      </section>
+
       {/* About Wealth Invest Corp */}
       <AboutSection onOpenCertificate={() => setIsCertificateOpen(true)} />
 
       {/* Live Blockchain Transactions */}
       <LiveTransactions transactions={INITIAL_TRANSACTIONS} />
+
+      {/* Sponsor / Leaderboard Ad (728x90) */}
+      <section className="py-6 px-4 bg-[#050917]/90 border-y border-slate-800/60">
+        <div className="max-w-6xl mx-auto flex justify-center">
+          <AdLeaderboard728x90 />
+        </div>
+      </section>
 
       {/* Affiliate Partner Program */}
       <AffiliateSection onJoinPartner={handleOpenRegister} />
@@ -279,6 +308,13 @@ export default function App() {
 
       {/* Security & Cold Storage Proof */}
       <SecuritySection />
+
+      {/* Sponsor / Mobile-Compact Ad (320x50) */}
+      <section className="py-6 px-4 bg-[#050816]/90 border-y border-slate-800/60">
+        <div className="max-w-md mx-auto flex justify-center">
+          <AdBanner320x50 />
+        </div>
+      </section>
 
       {/* FAQ */}
       <FaqSection />
